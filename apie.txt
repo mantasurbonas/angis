@@ -1,0 +1,80 @@
+# angis
+bandymas pridėti lietuvybes pitonui, pirmas dublis
+
+Šiuo projektu siekiame padaryti Pitoną patrauklesne alternatyva vaikams mokytis programuoti už Komenskio Logo.
+
+Pilnai veikiantis pavyzdys:
+
+pieštuk = programa.Pieštukas()
+
+pieštuk.pirmyn(100)
+pieštuk.kairėn(90)
+pieštuk.pirmyn(100)
+
+tai kvadratas(kraštinė):
+    imk žingsnį iš intervalo(0, 4):
+        pieštuk.pirmyn(kraštinė)
+        pieštuk.kairėn(90)
+
+tai gėlytė(lapeliųSk):
+    posūkis = 360 / lapeliųSk 
+    imk žingsnį iš intervalo(0, lapeliųSk):
+        kvadratas(100)
+        pieštuk.kairėn(posūkis)
+
+gėlytė(lapeliųSk = 10)
+
+
+Šiuo metu įsiūti štai tokie sinonimai (šalia normalių angliškų Python 3.5.0 raktinių žodžių):
+
+Eigos kontrolė:
+jei (arba jeigu) - sąlygos sakinys (angl. if)
+
+ojei (arba ojeigu) - alternatyvios sąlygos sakinys (angl. elif)
+
+kituatveju - blokas, vykdomas tuo atveju, kai ankstesnės sąlygos netenkinamos (angl. else)
+
+kol - ciklo sakinys (angl. while)
+
+imk ... iš - iteracinio ciklo sakinys (angl. for ... in)
+
+nutrauk - pertraukia (sąlygos arba ciklo) bloko vykdymą (angl. break) 
+
+bandyk ... pagavęs ... galiausiai - išskirtinių situacijų apdorojimo blokas (angl. try... except... finally)
+
+
+Loginiai jungtukai:
+ar (arba) - angl. or
+
+ir - angl. and
+
+nėra - angl. not
+
+Melas - angl. False
+
+Tiesa - angl. True
+
+Funkcijos
+tai - funkcijos deklaravimas (angl. def)
+
+grįžk (arba grąžink) - išeina iš funkcijos ir grąžina jos reikšmę (angl. return)
+
+duok ... iš - grąžinimas/įėjimas iš generatoriaus korutinos (angl. yield ... from)
+
+Klasės
+klasė - klasės deklaravimas (angl. class)
+
+
+Kiti sintaksės elementai
+reikalingas (arba reikalinga) - kito modulio įterpimas (angl. import)
+
+trink - priskyrimo panaikinimas (angl. del)
+
+tiekto - tuščias, nieko nedarantis sakinys, naudotinas ten, kur sintaksė būtinai reikalauja ką nors įrašyti. (angl. pass)
+
+
+Standartinės funkcijos
+
+rašyk (arba spausdink) - išspausdina nurodytas reikšmes konsolėje. Angl. print()
+
+intervalas (arba intervalo) - sukuria range tipo objektą iteravimui (angl. range())
