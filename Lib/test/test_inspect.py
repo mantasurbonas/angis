@@ -3419,6 +3419,9 @@ class TestSignatureDefinitions(unittest.TestCase):
         # for builtin callables
         not_converted_yet = {"open", "__import__"}
         no_signature |= not_converted_yet
+	# O šie yra lietuviški builtinai:
+        lietuviški = {"rašyk", "spausdink"}
+        no_signature |= lietuviški
         # These builtin types are expected to provide introspection info
         types_with_signatures = set()
         # Check the signatures we expect to be there

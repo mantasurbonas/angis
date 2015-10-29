@@ -68,8 +68,8 @@ class TestRlcompleter(unittest.TestCase):
         completer = rlcompleter.Completer()
         self.assertEqual(completer.complete('', 0), '\t')
         self.assertEqual(completer.complete('a', 0), 'and')
-        self.assertEqual(completer.complete('a', 1), 'as')
-        self.assertEqual(completer.complete('as', 2), 'assert')
+        self.assertEqual(completer.complete('a', 1), 'arba') # pridėjus lietuviškus sinonimus, antrasis siūlomas žodis t.b. "arba"
+        self.assertEqual(completer.complete('as', 2), 'as')
         self.assertEqual(completer.complete('an', 0), 'and')
 
 if __name__ == '__main__':
