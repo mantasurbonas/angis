@@ -3371,7 +3371,7 @@ ast_for_if_stmt(struct compiling *c, const node *n)
     */
     char *s;
 
-    REQ(n, if_stmt);
+    //REQ(n, if_stmt);
 
     if (NCH(n) == 4) {
         expr_ty expression;
@@ -3389,11 +3389,12 @@ ast_for_if_stmt(struct compiling *c, const node *n)
     }
 
     s = STR(CHILD(n, 4));
-    /* s[2], the third character in the string, will be
-       's' for el_s_e, or
-       'i' for el_i_f
+    /* s[1] and s[2], the second and third character in the string, will be either
+        e_ls_e | k_it_uatveju, or
+        e_li_f | o_je_i | o_je_igu
     */
-    if (s[2] == 's') {
+    if ((s[1] == 'l' && s[2] == 's') ||
+        (s[1] == 'i' && s[2] == 't')) {
         expr_ty expression;
         asdl_seq *seq1, *seq2;
 
@@ -3410,7 +3411,9 @@ ast_for_if_stmt(struct compiling *c, const node *n)
         return If(expression, seq1, seq2, LINENO(n), n->n_col_offset,
                   c->c_arena);
     }
-    else if (s[2] == 'i') {
+    else 
+    if ((s[1] == 'l' && s[2] == 'i') ||
+        (s[1] == 'j' && s[2] == 'e')) {
         int i, n_elif, has_else = 0;
         expr_ty expression;
         asdl_seq *suite_seq;
@@ -3626,6 +3629,7 @@ ast_for_except_clause(struct compiling *c, const node *exc, node *body)
 static stmt_ty
 ast_for_try_stmt(struct compiling *c, const node *n)
 {
+    const char* nodename=NULL;
     const int nch = NCH(n);
     int n_except = (nch - 3)/3;
     asdl_seq *body, *handlers = NULL, *orelse = NULL, *finally = NULL;
@@ -3635,9 +3639,12 @@ ast_for_try_stmt(struct compiling *c, const node *n)
     body = ast_for_suite(c, CHILD(n, 2));
     if (body == NULL)
         return NULL;
-
+    
     if (TYPE(CHILD(n, nch - 3)) == NAME) {
-        if (strcmp(STR(CHILD(n, nch - 3)), "finally") == 0) {
+	nodename = STR(CHILD(n, nch - 3));
+        
+	if ((strcmp(nodename, "finally") == 0) ||
+            (strcmp(nodename, "galiausiai") == 0) ) {
             if (nch >= 9 && TYPE(CHILD(n, nch - 6)) == NAME) {
                 /* we can assume it's an "else",
                    because nch >= 9 for try-else-finally and
