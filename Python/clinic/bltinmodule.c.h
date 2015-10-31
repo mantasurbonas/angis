@@ -437,7 +437,8 @@ PyDoc_STRVAR(builtin_len__doc__,
 "Return the number of items in a container.");
 
 #define BUILTIN_LEN_METHODDEF    \
-    {"len", (PyCFunction)builtin_len, METH_O, builtin_len__doc__},
+    {"len", (PyCFunction)builtin_len, METH_O, builtin_len__doc__}, \
+    {"ilgis", (PyCFunction)builtin_len, METH_O, builtin_len__doc__}, \
 
 PyDoc_STRVAR(builtin_locals__doc__,
 "locals($module, /)\n"
@@ -528,7 +529,9 @@ PyDoc_STRVAR(builtin_input__doc__,
 "On *nix systems, readline is used if available.");
 
 #define BUILTIN_INPUT_METHODDEF    \
-    {"input", (PyCFunction)builtin_input, METH_VARARGS, builtin_input__doc__},
+    {"input", (PyCFunction)builtin_input, METH_VARARGS, builtin_input__doc__}, \
+    {"įvesk", (PyCFunction)builtin_input, METH_VARARGS, builtin_input__doc__}, \
+    {"paklausk", (PyCFunction)builtin_input, METH_VARARGS, builtin_input__doc__}, \
 
 static PyObject *
 builtin_input_impl(PyModuleDef *module, PyObject *prompt);
@@ -542,7 +545,14 @@ builtin_input(PyModuleDef *module, PyObject *args)
     if (!PyArg_UnpackTuple(args, "input",
         0, 1,
         &prompt))
-        goto exit;
+        if (!PyArg_UnpackTuple(args, "paklausk",
+	    0, 1,
+	    &prompt))
+           if (!PyArg_UnpackTuple(args, "įvesk",
+               0, 1,
+	       &prompt))
+                   goto exit;
+
     return_value = builtin_input_impl(module, prompt);
 
 exit:
