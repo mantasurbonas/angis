@@ -986,14 +986,14 @@ class PyShell(OutputWindow):
 
     def close(self):
         "Extend EditorWindow.close()"
-        if self.executing:
-            response = tkMessageBox.askokcancel(
-                "Kill?",
-                "The program is still running!\n Do you want to kill it?",
-                default="ok",
-                parent=self.text)
-            if response is False:
-                return "cancel"
+        #if self.executing:
+        #    response = tkMessageBox.askokcancel(
+        #        "Kill?",
+        #        "The program is still running!\n Do you want to kill it?",
+        #        default="ok",
+        #        parent=self.text)
+        #    if response is False:
+        #        return "cancel"
         self.stop_readline()
         self.canceled = True
         self.closing = True
