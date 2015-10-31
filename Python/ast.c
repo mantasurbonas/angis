@@ -1095,7 +1095,11 @@ ast_for_comp_op(struct compiling *c, const node *n)
             case NAME:
                 if (strcmp(STR(n), "in") == 0)
                     return In;
+                if (strcmp(STR(n), "iš") == 0)
+                    return In;
                 if (strcmp(STR(n), "is") == 0)
+                    return Is;
+                if (strcmp(STR(n), "yra") == 0)
                     return Is;
             default:
                 PyErr_Format(PyExc_SystemError, "invalid comp_op: %s",
@@ -1109,7 +1113,11 @@ ast_for_comp_op(struct compiling *c, const node *n)
             case NAME:
                 if (strcmp(STR(CHILD(n, 1)), "in") == 0)
                     return NotIn;
+                if (strcmp(STR(CHILD(n, 1)), "iš") == 0)
+                    return NotIn;
                 if (strcmp(STR(CHILD(n, 0)), "is") == 0)
+                    return IsNot;
+                if (strcmp(STR(CHILD(n, 0)), "yra") == 0)
                     return IsNot;
             default:
                 PyErr_Format(PyExc_SystemError, "invalid comp_op: %s %s",
@@ -2492,10 +2500,10 @@ ast_for_expr(struct compiling *c, const node *n)
                     return NULL;
                 asdl_seq_SET(seq, i / 2, e);
             }
-            if (!strcmp(STR(CHILD(n, 1)), "and"))
+            if (!strcmp(STR(CHILD(n, 1)), "and") || !strcmp(STR(CHILD(n, 1)), "ir"))
                 return BoolOp(And, seq, LINENO(n), n->n_col_offset,
                               c->c_arena);
-            assert(!strcmp(STR(CHILD(n, 1)), "or"));
+            assert(!strcmp(STR(CHILD(n, 1)), "or") || !strcmp(STR(CHILD(n, 1)), "ar") || !strcmp(STR(CHILD(n, 1)), "arba"));
             return BoolOp(Or, seq, LINENO(n), n->n_col_offset, c->c_arena);
         case not_test:
             if (NCH(n) == 1) {
@@ -3371,7 +3379,7 @@ ast_for_if_stmt(struct compiling *c, const node *n)
     */
     char *s;
 
-    //REQ(n, if_stmt);
+    REQ(n, if_stmt);
 
     if (NCH(n) == 4) {
         expr_ty expression;
@@ -3422,7 +3430,10 @@ ast_for_if_stmt(struct compiling *c, const node *n)
         /* must reference the child n_elif+1 since 'else' token is third,
            not fourth, child from the end. */
         if (TYPE(CHILD(n, (n_elif + 1))) == NAME
-            && STR(CHILD(n, (n_elif + 1)))[2] == 's') {
+            && 
+            ( (STR(CHILD(n, (n_elif + 1)))[2] == 's') ||   // 'el_s_e'
+              (STR(CHILD(n, (n_elif + 1)))[2] == 't') )
+           ) {  // 'ki_t_uatveju'
             has_else = 1;
             n_elif -= 3;
         }

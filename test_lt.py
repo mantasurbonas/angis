@@ -8,13 +8,38 @@ tai veikia(kas):
 tai neveikia(kas):
     rašyk('{:.<30}NESUVEIKĖ'.format(kas))
 
+tai turiveikt(kas, rezultatas):
+    jei rezultatas:
+        veikia(kas)
+    kituatveju:
+        neveikia(kas)
+
+jei1 = Melas
+jei2 = Melas
+jei3 = Melas
+
 jei 1 != 0:
-    veikia("jei")
+    jei1 = Tiesa
+kituatveju:
+    jei1 = Melas
 
 jei 1 != 1:
-    tiekto
+    jei1 = jei2 = Melas
 kituatveju:
-    veikia("jei-kituatveju")
+    jei2 = Tiesa
+
+jei 1!=1:
+    jei1 = jei2 = jei3 = Melas
+ojei 2!=2:
+    jei3 = Melas
+kituatveju:
+    jei3 = Tiesa
+
+   
+turiveikt("jei", jei1)
+turiveikt("jei-kituatveju", jei2)
+turiveikt("jei-ojei-kituatveju", jei3)
+
 
 b = Tiesa
 
@@ -28,6 +53,20 @@ jei b != Melas:
 kituatveju:
     neveikia("Melas")
 
+l1 = Melas
+l1 = Melas ir Tiesa
+
+turiveikt("ir", l1 == Melas)
+
+l1 = Melas
+l1 = Melas arba Tiesa
+
+turiveikt("arba", l1 == Tiesa)
+
+l1 = Melas
+l1 = nėra l1
+
+turiveikt("nėra", l1)
 
 tai lyginiaiSk():
     imk sk iš intervalo(100):
@@ -41,25 +80,30 @@ imk sk iš lyginiaiSk():
     nutrauk
 
 jei iteracijųSk > 1:
-    neveikia("nutrauk")
+    neveikia("imk-nutrauk")
 kituatveju:
-    veikia("nutrauk")
+    veikia("imk-nutrauk")
 
 n = 5
 
 jei nėra (n == 4):
-    veikia("nėra")
+    veikia("jei-nėra")
 kituatveju:
-    neveikia("nėra")
+    neveikia("jei-nėra")
 
+tęskVeikia = Tiesa
+nutraukVeikia = Tiesa
 kol n>0:
     n = n - 1
     jei n > 3:
         tęsk
-        neveikia("tęsk")
+        tęskVeikia = Melas
     kituatveju:
         nutrauk
-        neveikia("nutrauk")
+        nutraukVeikia = Melas
+
+turiveikt("tęsk", tęskVeikia)
+turiveikt("nutrauk", nutraukVeikia)
 
 bandyk:
     rašyk(sk[-100])
