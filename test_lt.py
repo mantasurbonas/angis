@@ -68,6 +68,12 @@ l1 = nėra l1
 
 turiveikt("nėra", l1)
 
+l1 = Tiesa == True
+turiveikt("Tiesa == True", l1)
+
+l1 = Melas == False
+turiveikt("Melas == False", l1)
+
 tai lyginiaiSk():
     imk sk iš intervalo(100):
         jei sk % 2 == 0:
@@ -120,8 +126,5 @@ klasė Aš:
 
 aš = Aš()
 
-jei aš.metodas() == 42:
-    veikia("metodai ir klasės")
-kituatveju:
-    neveikia("metodai ir klasės")
+turiveikt("metodai ir klasės", aš.metodas() == 42)
 
