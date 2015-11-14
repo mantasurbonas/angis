@@ -1204,6 +1204,10 @@ symtable_visit_stmt(struct symtable *st, stmt_ty s)
         if (s->v.For.orelse)
             VISIT_SEQ(st, stmt, s->v.For.orelse);
         break;
+    case Kartok_kind:
+        VISIT(st, expr, s->v.Kartok.target);// can any symbols be declared in the target ???
+        VISIT_SEQ(st, stmt, s->v.Kartok.body);
+        break;
     case While_kind:
         VISIT(st, expr, s->v.While.test);
         VISIT_SEQ(st, stmt, s->v.While.body);

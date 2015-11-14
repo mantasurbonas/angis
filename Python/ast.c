@@ -340,6 +340,9 @@ validate_stmt(stmt_ty stmt)
             validate_expr(stmt->v.For.iter, Load) &&
             validate_body(stmt->v.For.body, "For") &&
             validate_stmts(stmt->v.For.orelse);
+    case Kartok_kind:
+        return validate_expr(stmt->v.Kartok.target, Load) &&
+            validate_body(stmt->v.Kartok.body, "Kartok");
     case AsyncFor_kind:
         return validate_expr(stmt->v.AsyncFor.target, Store) &&
             validate_expr(stmt->v.AsyncFor.iter, Load) &&
@@ -530,6 +533,7 @@ static stmt_ty ast_for_classdef(struct compiling *, const node *, asdl_seq *);
 
 static stmt_ty ast_for_with_stmt(struct compiling *, const node *, int);
 static stmt_ty ast_for_for_stmt(struct compiling *, const node *, int);
+static stmt_ty ast_for_kartok_stmt(struct compiling *, const node *, int);
 
 /* Note different signature for ast_for_call */
 static expr_ty ast_for_call(struct compiling *, const node *, expr_ty);
@@ -3583,6 +3587,29 @@ ast_for_for_stmt(struct compiling *c, const node *n, int is_async)
                    c->c_arena);
 }
 
+static stmt_ty
+ast_for_kartok_stmt(struct compiling *c, const node *n, int is_async)
+{
+    asdl_seq *suite_seq;
+    expr_ty expression;
+
+    /* kartok_stmt: 'kartok' testlist ':' suite */
+    REQ(n, kartok_stmt);
+
+    expression = ast_for_testlist(c, CHILD(n, 1));
+    if (!expression)
+        return NULL;
+
+    suite_seq = ast_for_suite(c, CHILD(n, 3));
+    if (!suite_seq)
+        return NULL;
+
+    return Kartok(expression, suite_seq, 
+               LINENO(n), n->n_col_offset,
+               c->c_arena);
+}
+
+
 static excepthandler_ty
 ast_for_except_clause(struct compiling *c, const node *exc, node *body)
 {
@@ -3874,6 +3901,8 @@ ast_for_stmt(struct compiling *c, const node *n)
                 return ast_for_while_stmt(c, ch);
             case for_stmt:
                 return ast_for_for_stmt(c, ch, 0);
+            case kartok_stmt:
+                return ast_for_kartok_stmt(c, ch, 0);
             case try_stmt:
                 return ast_for_try_stmt(c, ch);
             case with_stmt:

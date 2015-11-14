@@ -27,6 +27,7 @@ module Python
 
           -- use 'orelse' because else is a keyword in target languages
           | For(expr target, expr iter, stmt* body, stmt* orelse)
+          | Kartok(expr target, stmt* body)
           | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse)
           | While(expr test, stmt* body, stmt* orelse)
           | If(expr test, stmt* body, stmt* orelse)

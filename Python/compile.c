@@ -2034,6 +2034,106 @@ compiler_for(struct compiler *c, stmt_ty s)
     return 1;
 }
 
+static int create_local_variable(struct compiler *c, char* varname)
+{
+    identifier var;
+    PyObject   *mangled;
+    Py_ssize_t var_id;
+
+    var = PyUnicode_InternFromString(varname);
+
+    mangled = _Py_Mangle(c->u->u_private, var);
+    if (!mangled)
+        return 0;
+
+    var_id = compiler_add_o(c, c->u->u_varnames, mangled);
+    Py_DECREF(mangled);
+
+    return var_id; 
+}
+
+static int
+compiler_kartok(struct compiler *c, stmt_ty s)
+{
+    basicblock *start, *cleanup, *end;
+
+    PyObject *zero;   // constant 0
+    PyObject *one;    // constant 1
+
+    char varname[256];
+
+    Py_ssize_t loopend;
+    Py_ssize_t loopidx;
+
+    start = compiler_new_block(c);
+    cleanup = compiler_new_block(c);
+    end = compiler_new_block(c);
+
+    if (start == NULL || end == NULL || cleanup == NULL)
+        return 0;
+
+
+    PyOS_snprintf(varname, sizeof(varname), "__$lpe %d", c->u->u_lineno);
+    loopend = create_local_variable(c, varname);
+
+    PyOS_snprintf(varname, sizeof(varname), "__$lpi %d", c->u->u_lineno);
+    loopidx = create_local_variable(c, varname);
+
+
+    // lets evaluate v.Kartok.target , assign to loop end constant
+    VISIT(c, expr, s->v.Kartok.target);
+    ADDOP_I(c, STORE_FAST, loopend);
+
+    // lets create loop variable, assign 0
+    zero = PyLong_FromLong(0);
+    ADDOP_O(c, LOAD_CONST, zero, consts);
+    Py_DECREF(zero);
+    ADDOP_I(c, STORE_FAST, loopidx);
+
+    // seting up the loop from startblock to endblock
+    ADDOP_JREL(c, SETUP_LOOP, end);	
+    compiler_use_next_block(c, start);
+
+    // starting a new block
+    if (!compiler_push_fblock(c, LOOP, start)) 
+        return 0;
+
+    // comparing if loop index < loop end
+    ADDOP_I(c, LOAD_FAST, loopidx);
+    ADDOP_I(c, LOAD_FAST, loopend);
+    ADDOP_I(c, COMPARE_OP, 0);    // COMPARE_OP 0 (<)
+
+    ADDOP_JABS(c, POP_JUMP_IF_FALSE, cleanup);
+
+    // increasing loop index by 1
+    ADDOP_I(c, LOAD_FAST, loopidx);
+    one = PyLong_FromLong(1);
+    ADDOP_O(c, LOAD_CONST, one, consts);
+    Py_DECREF(one);
+    ADDOP(c, INPLACE_ADD);
+    ADDOP_I(c, STORE_FAST, loopidx); 
+
+    // inserting loop body
+    VISIT_SEQ(c, stmt, s->v.Kartok.body); 
+
+    // jump back to start
+    ADDOP_JABS(c, JUMP_ABSOLUTE, start); 
+
+    // the cleanup block - here we jump to when condition is false
+    compiler_use_next_block(c, cleanup); 
+    
+    // end of kartok block
+    ADDOP(c, POP_BLOCK);
+
+    // end of loop
+    compiler_pop_fblock(c, LOOP, start); 
+
+    // exit point
+    compiler_use_next_block(c, end);     
+
+    return 1;
+}
+
 
 static int
 compiler_async_for(struct compiler *c, stmt_ty s)
@@ -2676,6 +2776,8 @@ compiler_visit_stmt(struct compiler *c, stmt_ty s)
         return compiler_augassign(c, s);
     case For_kind:
         return compiler_for(c, s);
+    case Kartok_kind:
+        return compiler_kartok(c, s);
     case While_kind:
         return compiler_while(c, s);
     case If_kind:

@@ -68,11 +68,12 @@ global_stmt: 'global' NAME (',' NAME)*
 nonlocal_stmt: 'nonlocal' NAME (',' NAME)*
 assert_stmt: 'assert' test [',' test]
 
-compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
+compound_stmt: if_stmt | while_stmt | for_stmt | kartok_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
 async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
 if_stmt: ('if' | 'jei' | 'jeigu') test ':' suite (('elif' | 'ojei' | 'ojeigu') test ':' suite)* [('else' | 'kituatveju') ':' suite]
 while_stmt: ('while'|'kol') test ':' suite [('else'|'kituatveju') ':' suite]
 for_stmt: ('for' | 'imk') exprlist ('in' | 'iš') testlist ':' suite [('else'|'kituatveju') ':' suite]
+kartok_stmt: 'kartok' testlist ':' suite
 try_stmt: (('try'|'bandyk') ':' suite
            ((except_clause ':' suite)+
             [('else'|'kituatveju') ':' suite]

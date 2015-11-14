@@ -95,6 +95,11 @@ static char *For_fields[]={
     "body",
     "orelse",
 };
+static PyTypeObject *Kartok_type;
+static char *Kartok_fields[]={
+    "target",
+    "body",
+};
 static PyTypeObject *AsyncFor_type;
 static char *AsyncFor_fields[]={
     "target",
@@ -845,6 +850,8 @@ static int init_types(void)
     if (!AugAssign_type) return 0;
     For_type = make_type("For", stmt_type, For_fields, 4);
     if (!For_type) return 0;
+    Kartok_type = make_type("Kartok", stmt_type, Kartok_fields, 2);
+    if (!Kartok_type) return 0;
     AsyncFor_type = make_type("AsyncFor", stmt_type, AsyncFor_fields, 4);
     if (!AsyncFor_type) return 0;
     While_type = make_type("While", stmt_type, While_fields, 3);
@@ -1392,6 +1399,27 @@ For(expr_ty target, expr_ty iter, asdl_seq * body, asdl_seq * orelse, int
     p->v.For.iter = iter;
     p->v.For.body = body;
     p->v.For.orelse = orelse;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    return p;
+}
+
+stmt_ty
+Kartok(expr_ty target, asdl_seq * body, int lineno, int col_offset, PyArena
+       *arena)
+{
+    stmt_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field target is required for Kartok");
+        return NULL;
+    }
+    p = (stmt_ty)PyArena_Malloc(arena, sizeof(*p));
+    if (!p)
+        return NULL;
+    p->kind = Kartok_kind;
+    p->v.Kartok.target = target;
+    p->v.Kartok.body = body;
     p->lineno = lineno;
     p->col_offset = col_offset;
     return p;
@@ -2666,6 +2694,20 @@ ast2obj_stmt(void* _o)
         value = ast2obj_list(o->v.For.orelse, ast2obj_stmt);
         if (!value) goto failed;
         if (_PyObject_SetAttrId(result, &PyId_orelse, value) == -1)
+            goto failed;
+        Py_DECREF(value);
+        break;
+    case Kartok_kind:
+        result = PyType_GenericNew(Kartok_type, NULL, NULL);
+        if (!result) goto failed;
+        value = ast2obj_expr(o->v.Kartok.target);
+        if (!value) goto failed;
+        if (_PyObject_SetAttrId(result, &PyId_target, value) == -1)
+            goto failed;
+        Py_DECREF(value);
+        value = ast2obj_list(o->v.Kartok.body, ast2obj_stmt);
+        if (!value) goto failed;
+        if (_PyObject_SetAttrId(result, &PyId_body, value) == -1)
             goto failed;
         Py_DECREF(value);
         break;
@@ -4484,6 +4526,53 @@ obj2ast_stmt(PyObject* obj, stmt_ty* out, PyArena* arena)
             return 1;
         }
         *out = For(target, iter, body, orelse, lineno, col_offset, arena);
+        if (*out == NULL) goto failed;
+        return 0;
+    }
+    isinstance = PyObject_IsInstance(obj, (PyObject*)Kartok_type);
+    if (isinstance == -1) {
+        return 1;
+    }
+    if (isinstance) {
+        expr_ty target;
+        asdl_seq* body;
+
+        if (_PyObject_HasAttrId(obj, &PyId_target)) {
+            int res;
+            tmp = _PyObject_GetAttrId(obj, &PyId_target);
+            if (tmp == NULL) goto failed;
+            res = obj2ast_expr(tmp, &target, arena);
+            if (res != 0) goto failed;
+            Py_CLEAR(tmp);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "required field \"target\" missing from Kartok");
+            return 1;
+        }
+        if (_PyObject_HasAttrId(obj, &PyId_body)) {
+            int res;
+            Py_ssize_t len;
+            Py_ssize_t i;
+            tmp = _PyObject_GetAttrId(obj, &PyId_body);
+            if (tmp == NULL) goto failed;
+            if (!PyList_Check(tmp)) {
+                PyErr_Format(PyExc_TypeError, "Kartok field \"body\" must be a list, not a %.200s", tmp->ob_type->tp_name);
+                goto failed;
+            }
+            len = PyList_GET_SIZE(tmp);
+            body = _Py_asdl_seq_new(len, arena);
+            if (body == NULL) goto failed;
+            for (i = 0; i < len; i++) {
+                stmt_ty value;
+                res = obj2ast_stmt(PyList_GET_ITEM(tmp, i), &value, arena);
+                if (res != 0) goto failed;
+                asdl_seq_SET(body, i, value);
+            }
+            Py_CLEAR(tmp);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "required field \"body\" missing from Kartok");
+            return 1;
+        }
+        *out = Kartok(target, body, lineno, col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7260,6 +7349,8 @@ PyInit__ast(void)
     if (PyDict_SetItemString(d, "AugAssign", (PyObject*)AugAssign_type) < 0)
         return NULL;
     if (PyDict_SetItemString(d, "For", (PyObject*)For_type) < 0) return NULL;
+    if (PyDict_SetItemString(d, "Kartok", (PyObject*)Kartok_type) < 0) return
+        NULL;
     if (PyDict_SetItemString(d, "AsyncFor", (PyObject*)AsyncFor_type) < 0)
         return NULL;
     if (PyDict_SetItemString(d, "While", (PyObject*)While_type) < 0) return
