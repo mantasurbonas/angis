@@ -33,3 +33,6 @@
 
 # compiled Python
 *.pyc
+
+# various build trash
+*.log
