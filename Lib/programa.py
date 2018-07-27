@@ -114,6 +114,7 @@ import sys
 from os.path import isfile, split, join
 from copy import deepcopy
 from tkinter import simpledialog
+from time import sleep
 
 _tg_classes = ['ScrolledCanvas', 'TurtleScreen', 'Screen',
                'RawTurtle', 'Turtle', 'RawPen', 'Pen', 'Shape', 'Vec2D']
@@ -847,6 +848,13 @@ class TurtleScreenBase(object):
         """
         return simpledialog.askfloat(title, prompt, initialvalue=default,
                                      minvalue=minval, maxvalue=maxval)
+    
+    def veik(self):
+        try:
+            self.mainloop()
+        except:
+            pass
+        
 
 
 ##############################################################################
@@ -1602,7 +1610,10 @@ class TNavigator(object):
     def _go(self, distance):
         """move turtle forward by specified distance"""
         ende = self._position + self._orient * distance
-        self._goto(ende)
+        try:
+            self._goto(ende)
+        except:
+            pass
 
     def _rotate(self, angle):
         """Turn turtle counterclockwise by specified angle if angle > 0."""
@@ -2027,6 +2038,8 @@ class TNavigator(object):
     kairėn = left
     kairen = left
 
+    atsirask = goto
+
     position = pos
     setpos = goto
     setposition = goto
@@ -2035,6 +2048,9 @@ class TNavigator(object):
     žiūrėk = setheading
 	
     namo = home
+    
+    duokX = xcor
+    duokY = ycor
 
 class TPen(object):
     """Drawing part of the RawTurtle.
@@ -2476,6 +2492,10 @@ class TPen(object):
                                 -scx*sa, scy*(ca - shf*sa))
         self._update()
 
+
+    def naudok_formą(self, shapeName):
+        self.shape(shapeName)
+        
 ## three dummy methods to be implemented by child class:
 
     def _newLine(self, usePos = True):
@@ -2683,20 +2703,23 @@ class RawTurtle(TPen, TNavigator):
     def _update(self):
         """Perform a Turtle-data update.
         """
-        screen = self.screen
-        if screen._tracing == 0:
-            return
-        elif screen._tracing == 1:
-            self._update_data()
-            self._drawturtle()
-            screen._update()                  # TurtleScreenBase
-            screen._delay(screen._delayvalue) # TurtleScreenBase
-        else:
-            self._update_data()
-            if screen._updatecounter == 0:
-                for t in screen.turtles():
-                    t._drawturtle()
-                screen._update()
+        try:
+            screen = self.screen
+            if screen._tracing == 0:
+                return
+            elif screen._tracing == 1:
+                self._update_data()
+                self._drawturtle()
+                screen._update()                  # TurtleScreenBase
+                screen._delay(screen._delayvalue) # TurtleScreenBase
+            else:
+                self._update_data()
+                if screen._updatecounter == 0:
+                    for t in screen.turtles():
+                        t._drawturtle()
+                    screen._update()
+        except:
+            pass
 
     def _tracer(self, flag=None, delay=None):
         """Turns turtle animation on/off and set delay for update drawings.
@@ -3539,6 +3562,8 @@ class RawTurtle(TPen, TNavigator):
         return self
 
     getpen = getturtle
+    
+    pėduok = stamp
 
 
     ################################################################
@@ -3683,6 +3708,12 @@ class RawTurtle(TPen, TNavigator):
     valyk = clear
 	
     rašyk = write
+    
+    paspaudus = onclick
+    
+    atleidus = onrelease
+    
+    patempus = ondrag
 
 RawPen = RawTurtle
 
@@ -3831,12 +3862,25 @@ class _Screen(TurtleScreen):
     atia = bye
 	
     atiaPaspaudus = exitonclick
+    
 
 def atia():
     Screen().atia()
 	
 def atiaPaspaudus():
     Screen().atiaPaspaudus()
+    
+def įsimink_formą(gifFile):
+    Screen().register_shape(gifFile)
+    
+def veik():
+    Screen().veik()
+	
+def palauk(msec):
+    sleep(msec / 1000) 
+	
+def paspaudus(komanda, funkcija):
+    Screen().cv.bind_all(komanda, funkcija)
 	
 class Turtle(RawTurtle):
     """RawTurtle auto-creating (scrolled) canvas.
